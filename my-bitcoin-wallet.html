@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f1117">
+  <meta name="description" content="Educational local Bitcoin wallet">
+  <link rel="manifest" href="manifest.json">
+  <title>My Bitcoin Wallet</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --card: #1a1d27;
+      --accent: #f7931a;
+      --text: #e6e8ef;
+      --muted: #8b90a0;
+      --danger: #ff4d4f;
+      --success: #52c41a;
+      --safe-top: env(safe-area-inset-top);
+      --safe-bottom: env(safe-area-inset-bottom);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%;
+      overscroll-behavior: none;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: calc(16px + var(--safe-top)) 16px calc(20px + var(--safe-bottom));
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100%;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+      padding-top: 8px;
+    }
+    h1 {
+      font-size: 1.5rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid #2a2e3b;
+    }
+    .card h2 {
+      font-size: 1rem;
+      margin-bottom: 14px;
+      font-weight: 600;
+    }
+    button {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 1rem;
+      width: 100%;
+      margin-top: 10px;
+      min-height: 52px;
+      touch-action: manipulation;
+    }
+    button:active { transform: scale(0.98); }
+    button.secondary {
+      background: #2a2e3b;
+      color: var(--text);
+    }
+    button.danger {
+      background: #3a1c1c;
+      color: #ff8a8a;
+      border: 1px solid var(--danger);
+    }
+    textarea, input {
+      width: 100%;
+      background: #12151e;
+      border: 1px solid #2a2e3b;
+      color: var(--text);
+      padding: 14px;
+      border-radius: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.95rem;
+      resize: vertical;
+      margin-bottom: 8px;
+      -webkit-appearance: none;
+    }
+    .label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display: block;
+      font-weight: 500;
+    }
+    .value {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      word-break: break-all;
+      background: #12151e;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+      line-height: 1.4;
+      user-select: all;
+    }
+    .warning {
+      background: #2a1515;
+      border: 1px solid #5c2a2a;
+      color: #ffb3b3;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 18px;
+    }
+    .status {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 10px;
+      text-align: center;
+    }
+    .balance {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--success);
+      margin: 6px 0 4px;
+    }
+    .hidden { display: none !important; }
+    .row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .row button { flex: 1; margin-top: 0; }
+    .divider {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin: 14px 0;
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-top: 28px;
+      padding-bottom: 10px;
+    }
+    /* Install banner */
+    #installBanner {
+      position: fixed;
+      bottom: calc(16px + var(--safe-bottom));
+      left: 16px;
+      right: 16px;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 14px;
+      display: none;
+      z-index: 100;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+    }
+    #installBanner.show { display: block; }
+    #installBanner p { font-size: 0.9rem; margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>₿ My Bitcoin Wallet</h1>
+      <p class="subtitle">Local · Educational · Mobile-ready</p>
+    </header>
+
+    <div class="warning">
+      <strong>⚠️ Security notice</strong><br>
+      This is a learning tool only. Do not store large amounts of real Bitcoin here.
+      Anyone who sees your recovery phrase or private key can steal the funds.
+    </div>
+
+    <!-- Setup -->
+    <div class="card" id="setupCard">
+      <h2>Create or Import Wallet</h2>
+      <button id="btnGenerate">Generate New Wallet</button>
+      <div class="divider">or import existing</div>
+      <label class="label">12 or 24-word recovery phrase</label>
+      <textarea id="importMnemonic" rows="3" placeholder="word1 word2 word3 ..." autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+      <button class="secondary" id="btnImport">Import Wallet</button>
+      <div class="status" id="setupStatus"></div>
+    </div>
+
+    <!-- Wallet View -->
+    <div class="card hidden" id="walletCard">
+      <h2>Your Wallet</h2>
+
+      <label class="label">Recovery Phrase (keep secret)</label>
+      <div class="value" id="mnemonicDisplay"></div>
+
+      <label class="label">Bitcoin Address (Native SegWit)</label>
+      <div class="value" id="addressDisplay"></div>
+
+      <label class="label">Private Key (WIF)</label>
+      <div class="value" id="wifDisplay"></div>
+
+      <div style="margin: 16px 0 8px;">
+        <label class="label">Balance</label>
+        <div class="balance" id="balanceDisplay">—</div>
+        <button class="secondary" id="btnRefreshBalance">Refresh Balance</button>
+      </div>
+
+      <div class="row">
+        <button class="secondary" id="btnCopyAddress">Copy Address</button>
+        <button class="danger" id="btnLogout">Forget</button>
+      </div>
+
+      <div class="status" id="walletStatus"></div>
+    </div>
+
+    <footer>
+      Path: m/84'/0'/0'/0/0 · BIP39 + bitcoinjs-lib<br>
+      Works offline after first load · Add to Home Screen for app-like experience
+    </footer>
+  </div>
+
+  <!-- Install prompt -->
+  <div id="installBanner">
+    <p>Install this wallet on your home screen for a better mobile experience.</p>
+    <button id="btnInstall">Install App</button>
+    <button class="secondary" id="btnDismissInstall" style="margin-top:8px;">Not now</button>
+  </div>
+
+  <script type="module">
+    import * as bip39 from 'https://esm.sh/bip39@3.1.0';
+    import { BIP32Factory } from 'https://esm.sh/bip32@4.0.0';
+    import * as ecc from 'https://esm.sh/@bitcoinerlab/secp256k1@1.1.1';
+    import * as bitcoin from 'https://esm.sh/bitcoinjs-lib@6.1.5';
+
+    const bip32 = BIP32Factory(ecc);
+    const network = bitcoin.networks.bitcoin;
+
+    const setupCard = document.getElementById('setupCard');
+    const walletCard = document.getElementById('walletCard');
+    const mnemonicDisplay = document.getElementById('mnemonicDisplay');
+    const addressDisplay = document.getElementById('addressDisplay');
+    const wifDisplay = document.getElementById('wifDisplay');
+    const balanceDisplay = document.getElementById('balanceDisplay');
+    const setupStatus = document.getElementById('setupStatus');
+    const walletStatus = document.getElementById('walletStatus');
+    const installBanner = document.getElementById('installBanner');
+
+    let currentAddress = null;
+    let deferredPrompt = null;
+
+    function showWallet(mnemonic, address, wif) {
+      mnemonicDisplay.textContent = mnemonic;
+      addressDisplay.textContent = address;
+      wifDisplay.textContent = wif;
+      currentAddress = address;
+      setupCard.classList.add('hidden');
+      walletCard.classList.remove('hidden');
+      setupStatus.textContent = '';
+      walletStatus.textContent = '';
+      balanceDisplay.textContent = '—';
+    }
+
+    function deriveFromMnemonic(mnemonic) {
+      if (!bip39.validateMnemonic(mnemonic)) {
+        throw new Error('Invalid recovery phrase');
+      }
+      const seed = bip39.mnemonicToSeedSync(mnemonic);
+      const root = bip32.fromSeed(seed, network);
+      const child = root.derivePath("m/84'/0'/0'/0/0");
+      const { address } = bitcoin.payments.p2wpkh({
+        pubkey: child.publicKey,
+        network
+      });
+      return { address, wif: child.toWIF() };
+    }
+
+    document.getElementById('btnGenerate').addEventListener('click', () => {
+      try {
+        const mnemonic = bip39.generateMnemonic(128);
+        const { address, wif } = deriveFromMnemonic(mnemonic);
+        showWallet(mnemonic, address, wif);
+      } catch (err) {
+        setupStatus.textContent = 'Error: ' + err.message;
+        setupStatus.style.color = 'var(--danger)';
+      }
+    });
+
+    document.getElementById('btnImport').addEventListener('click', () => {
+      const mnemonic = document.getElementById('importMnemonic').value.trim().toLowerCase();
+      if (!mnemonic) {
+        setupStatus.textContent = 'Please enter a recovery phrase';
+        setupStatus.style.color = 'var(--danger)';
+        return;
+      }
+      try {
+        const { address, wif } = deriveFromMnemonic(mnemonic);
+        showWallet(mnemonic, address, wif);
+      } catch (err) {
+        setupStatus.textContent = 'Error: ' + err.message;
+        setupStatus.style.color = 'var(--danger)';
+      }
+    });
+
+    document.getElementById('btnCopyAddress').addEventListener('click', async () => {
+      if (!currentAddress) return;
+      try {
+        await navigator.clipboard.writeText(currentAddress);
+        walletStatus.textContent = 'Address copied';
+        walletStatus.style.color = 'var(--success)';
+      } catch {
+        walletStatus.textContent = 'Could not copy – long-press the address instead';
+        walletStatus.style.color = 'var(--muted)';
+      }
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      currentAddress = null;
+      document.getElementById('importMnemonic').value = '';
+      walletCard.classList.add('hidden');
+      setupCard.classList.remove('hidden');
+      walletStatus.textContent = '';
+    });
+
+    document.getElementById('btnRefreshBalance').addEventListener('click', async () => {
+      if (!currentAddress) return;
+      balanceDisplay.textContent = 'Loading…';
+      walletStatus.textContent = '';
+      try {
+        const res = await fetch(`https://blockstream.info/api/address/${currentAddress}`);
+        if (!res.ok) throw new Error('Network error');
+        const data = await res.json();
+        const satoshis = (data.chain_stats.funded_txo_sum || 0) - (data.chain_stats.spent_txo_sum || 0);
+        const btc = (satoshis / 1e8).toFixed(8);
+        balanceDisplay.textContent = `${btc} BTC`;
+        walletStatus.textContent = 'Balance updated';
+        walletStatus.style.color = 'var(--success)';
+      } catch (err) {
+        balanceDisplay.textContent = 'Error';
+        walletStatus.textContent = 'Could not fetch balance';
+        walletStatus.style.color = 'var(--danger)';
+      }
+    });
+
+    // PWA install handling
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBanner.classList.add('show');
+    });
+
+    document.getElementById('btnInstall').addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      installBanner.classList.remove('show');
+    });
+
+    document.getElementById('btnDismissInstall').addEventListener('click', () => {
+      installBanner.classList.remove('show');
+    });
+
+    // Basic service worker registration for offline support
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
